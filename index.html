@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#b91c1c" />
+  <title>FAMILLE TAGHLET — Budget mensuel &amp; cumulé</title>
+  <meta name="description" content="Famille Taghlet : suivez vos revenus, charges fixes et charges variables mois par mois, avec un cumul annuel." />
+  <link rel="icon" type="image/jpeg" href="ca.jpg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-photo" src="ca.jpg" alt="Logo FAMILLE TAGHLET" width="46" height="46" />
+      <div>
+        <h1>FAMILLE TAGHLET</h1>
+        <span class="brand-sub">Suivi mensuel &amp; cumulé</span>
+      </div>
+    </div>
+
+    <div class="month-switcher" role="group" aria-label="Changer de mois">
+      <button type="button" id="prev-month" class="icon-btn" aria-label="Mois précédent">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <button type="button" id="month-label" class="month-btn" title="Revenir au mois en cours">Novembre 2026</button>
+      <button type="button" id="next-month" class="icon-btn" aria-label="Mois suivant">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+
+    <div class="top-actions">
+      <label class="currency-field" for="currency">
+        <span>Devise</span>
+        <select id="currency" aria-label="Devise">
+          <option value="TND">TND · DT</option>
+          <option value="EUR">EUR · €</option>
+          <option value="MAD">MAD · DH</option>
+          <option value="USD">USD · $</option>
+          <option value="CHF">CHF</option>
+          <option value="GBP">GBP · £</option>
+        </select>
+      </label>
+      <button type="button" class="btn ghost" id="btn-import" aria-label="Importer les données" title="Importer les données">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span class="btn-label">Importer</span>
+      </button>
+      <button type="button" class="btn ghost" id="btn-export" aria-label="Exporter les données" title="Exporter les données">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 8 12 3 17 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        <span class="btn-label">Exporter</span>
+      </button>
+      <input type="file" id="import-file" accept=".json,application/json" hidden />
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="kpis" aria-label="Indicateurs du mois">
+      <article class="kpi">
+        <div class="kpi-top"><span class="dot dot-income"></span><span class="kpi-label">Revenus</span></div>
+        <strong class="kpi-value income" id="kpi-income">0 DT</strong>
+        <span class="kpi-sub" id="kpi-income-sub">Aucune source</span>
+      </article>
+      <article class="kpi">
+        <div class="kpi-top"><span class="dot dot-fixed"></span><span class="kpi-label">Charges fixes</span></div>
+        <strong class="kpi-value" id="kpi-fixed">0 DT</strong>
+        <span class="kpi-sub" id="kpi-fixed-sub">Aucune charge fixe</span>
+      </article>
+      <article class="kpi">
+        <div class="kpi-top"><span class="dot dot-variable"></span><span class="kpi-label">Charges variables</span></div>
+        <strong class="kpi-value" id="kpi-variable">0 DT</strong>
+        <span class="kpi-sub" id="kpi-variable-sub">Aucune charge variable</span>
+      </article>
+      <article class="kpi highlight">
+        <div class="kpi-top"><span class="dot dot-rest"></span><span class="kpi-label">Solde du mois</span></div>
+        <strong class="kpi-value" id="kpi-balance">0 DT</strong>
+        <span class="kpi-sub" id="kpi-balance-sub">Cumul depuis janvier : 0 DT</span>
+      </article>
+    </section>
+
+    <section class="panel overview" aria-label="Aperçu du budget">
+      <div class="overview-visual">
+        <div class="donut" id="donut">
+          <div class="donut-hole">
+            <span id="donut-pct">0 %</span>
+            <small>du budget</small>
+          </div>
+        </div>
+        <ul class="legend">
+          <li><span class="dot dot-fixed"></span><span>Charges fixes</span><b id="legend-fixed">0 DT</b></li>
+          <li><span class="dot dot-variable"></span><span>Charges variables</span><b id="legend-variable">0 DT</b></li>
+          <li><span class="dot dot-rest"></span><span>Reste</span><b id="legend-rest">0 DT</b></li>
+        </ul>
+      </div>
+      <div class="overview-info">
+        <h2>Vue d’ensemble</h2>
+        <p class="panel-sub">Répartition des charges par rapport aux revenus du mois sélectionné.</p>
+        <div class="progress-head"><span>Budget utilisé</span><strong id="progress-pct">0 %</strong></div>
+        <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+        <p class="hint" id="budget-hint">Renseignez vos revenus et vos charges pour activer le suivi du budget.</p>
+        <dl class="mini-stats">
+          <div><dt>Total des charges</dt><dd id="total-charges">0 DT</dd></div>
+          <div><dt>Solde cumulé de l’année</dt><dd id="mini-cumul">0 DT</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Revenus du mois</h2>
+          <p class="panel-sub">Salaires, primes et autres entrées d’argent</p>
+        </div>
+        <span class="pill" id="income-total">0 DT</span>
+      </div>
+      <form class="entry-form" id="income-form" autocomplete="off">
+        <input class="field" id="income-label" type="text" maxlength="60" placeholder="Ex. Salaire" aria-label="Libellé du revenu" required />
+        <input class="field field-amount" id="income-amount" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="Montant" aria-label="Montant du revenu" required />
+        <button class="btn primary" type="submit" id="income-submit">Ajouter</button>
+        <button class="btn ghost hidden" type="button" data-cancel="income">Annuler</button>
+      </form>
+      <div class="entry-list" id="income-list"></div>
+      <p class="empty" id="income-empty">Aucun revenu pour ce mois. Ajoutez votre salaire ou une autre source.</p>
+    </section>
+
+    <div class="grid-charges">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Charges fixes</h2>
+            <p class="panel-sub">Loyer, assurances, abonnements, crédits…</p>
+          </div>
+          <span class="pill pill-fixed" id="fixed-total">0 DT</span>
+        </div>
+        <form class="entry-form" id="fixed-form" autocomplete="off">
+          <input class="field" id="fixed-label" type="text" maxlength="60" placeholder="Ex. Loyer" aria-label="Libellé de la charge fixe" required />
+          <input class="field field-amount" id="fixed-amount" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="Montant" aria-label="Montant de la charge fixe" required />
+          <select class="field field-select" id="fixed-category" data-categories aria-label="Catégorie de la charge fixe" required>
+            <option value="" disabled selected>Catégorie</option>
+          </select>
+          <button class="btn primary" type="submit" id="fixed-submit">Ajouter</button>
+          <button class="btn ghost hidden" type="button" data-cancel="fixed">Annuler</button>
+        </form>
+        <div class="copy-hint hidden" id="fixed-copy">
+          <span id="fixed-copy-text">Charges fixes du mois précédent disponibles.</span>
+          <button class="btn small" type="button" id="fixed-copy-btn">Reprendre</button>
+        </div>
+        <div class="entry-list" id="fixed-list"></div>
+        <p class="empty" id="fixed-empty">Aucune charge fixe pour ce mois.</p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Charges variables</h2>
+            <p class="panel-sub">Courses, transport, loisirs, dépenses ponctuelles…</p>
+          </div>
+          <span class="pill pill-variable" id="variable-total">0 DT</span>
+        </div>
+        <form class="entry-form" id="variable-form" autocomplete="off">
+          <input class="field" id="variable-label" type="text" maxlength="60" placeholder="Ex. Courses" aria-label="Libellé de la charge variable" required />
+          <input class="field field-amount" id="variable-amount" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="Montant" aria-label="Montant de la charge variable" required />
+          <select class="field field-select" id="variable-category" data-categories aria-label="Catégorie de la charge variable" required>
+            <option value="" disabled selected>Catégorie</option>
+          </select>
+          <input class="field field-date" id="variable-date" type="date" aria-label="Date de la dépense" required />
+          <button class="btn primary" type="submit" id="variable-submit">Ajouter</button>
+          <button class="btn ghost hidden" type="button" data-cancel="variable">Annuler</button>
+        </form>
+        <div class="entry-list" id="variable-list"></div>
+        <p class="empty" id="variable-empty">Aucune charge variable pour ce mois.</p>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Cumul annuel <span class="year-badge" id="cumul-year">2026</span></h2>
+          <p class="panel-sub">Cliquez sur un mois pour l’afficher. Le solde cumulé reprend les mois précédents de l’année.</p>
+        </div>
+        <div class="global-cumul">
+          <span>Solde cumulé global</span>
+          <strong id="global-cumul">0 DT</strong>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">Cumul annuel des revenus, charges et soldes</caption>
+          <thead>
+            <tr>
+              <th scope="col">Mois</th>
+              <th scope="col">Revenus</th>
+              <th scope="col">Charges fixes</th>
+              <th scope="col">Charges variables</th>
+              <th scope="col">Total charges</th>
+              <th scope="col">Solde</th>
+              <th scope="col">Solde cumulé</th>
+            </tr>
+          </thead>
+          <tbody id="cumul-body"></tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">Total année</th>
+              <td id="year-income">0 DT</td>
+              <td id="year-fixed">0 DT</td>
+              <td id="year-variable">0 DT</td>
+              <td id="year-charges">0 DT</td>
+              <td id="year-solde">0 DT</td>
+              <td id="year-cumul">0 DT</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="table-hint">Faites défiler le tableau horizontalement pour voir toutes les colonnes.</p>
+    </section>
+
+    <footer class="page-foot">
+      <span>FAMILLE TAGHLET · Vos données sont enregistrées uniquement dans ce navigateur.</span>
+      <button type="button" class="link-danger" id="reset-data">Effacer toutes les données</button>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
